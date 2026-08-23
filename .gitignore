@@ -1,0 +1,5 @@
+# Artefatos gerados por cada execucao (contem dados da maquina)
+otimizacao-*.log
+backup-Run-*.reg
+fix-servicos.txt
+_*.ps1
