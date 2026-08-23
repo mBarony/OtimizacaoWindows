@@ -51,7 +51,7 @@ de arquivos compactados, de rede e de mídia removível.
 | **Autostart** | Remove entradas em HKLM/HKCU por padrão (efeitos de áudio, assistentes e updaters de fabricante, OneDrive, Edge auto-launch, etc). Faz backup `.reg` antes. |
 | **Memória** | Prefetch/SuperFetch off, prioridade para o processo em foco, *power throttling* off, pagefile fixo dimensionado pela RAM. |
 | **Indexação** | Windows Search desligado, índice apagado, atributo de indexação removido do volume. |
-| **Telemetria** | Diagnósticos no mínimo, sem Copilot, sem widgets, sem sugestões nem anúncios. |
+| **Telemetria** | `AllowTelemetry=0`, CEIP/SQM, relatório de erros, linha do tempo, ID de publicidade, personalização de escrita e voz, busca na nuvem/Cortana, sincronização de configurações, WiFi Sense, sessões de rastreamento ETW, telemetria do Edge/Office/Visual Studio/NVIDIA e opt-out de .NET e PowerShell. Sem Copilot, widgets, sugestões nem anúncios. |
 | **Interface** | Efeitos visuais em "melhor desempenho", sem transparência, sem animações, menus instantâneos. |
 | **Energia** | Plano Alto Desempenho, hibernação/fast startup off. |
 | **Apps UWP** | Remove ~40 apps: Xbox, Fotos, Mídia, Mapas, Widgets, Solitaire, Copilot, etc. |
@@ -82,6 +82,14 @@ de arquivos compactados, de rede e de mídia removível.
 - **Sem compartilhamento de arquivos** pela rede (`LanmanServer` desabilitado).
 - **Sem restauração do sistema** (a tarefa `SR` foi desabilitada).
 - Plano Alto Desempenho **consome mais bateria** e esquenta mais.
+- **Sem linha do tempo** (histórico de atividades) e **sem área de transferência entre
+  dispositivos**. O histórico local do `Win+V` continua funcionando.
+- **Configurações não sincronizam** entre máquinas da mesma conta Microsoft.
+- **Apps não acessam a localização** e o reconhecimento de voz online fica desligado.
+- A busca do Windows **não consulta a web** (sem Bing, sem Cortana).
+
+O arquivo `hosts` **não é alterado** de propósito: bloquear domínios da Microsoft por ali
+quebra o Windows Update e a Store, e o bloqueio se perde a cada atualização de recurso.
 
 ## Reverter
 

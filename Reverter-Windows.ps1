@@ -99,10 +99,36 @@ foreach($k in 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection',
               'HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer',
               'HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search',
               'HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender',
-              'HKLM:\SOFTWARE\Policies\Microsoft\Edge'){
+              'HKLM:\SOFTWARE\Policies\Microsoft\Edge',
+              'HKLM:\SOFTWARE\Policies\Microsoft\SQMClient',
+              'HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Error Reporting',
+              'HKLM:\SOFTWARE\Policies\Microsoft\Windows\System',
+              'HKLM:\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo',
+              'HKLM:\SOFTWARE\Policies\Microsoft\InputPersonalization',
+              'HKLM:\SOFTWARE\Policies\Microsoft\Speech',
+              'HKLM:\SOFTWARE\Policies\Microsoft\Windows\HandwritingErrorReports',
+              'HKLM:\SOFTWARE\Policies\Microsoft\Windows\TabletPC',
+              'HKLM:\SOFTWARE\Policies\Microsoft\Windows\SettingSync',
+              'HKLM:\SOFTWARE\Policies\Microsoft\Windows\Messenger',
+              'HKLM:\SOFTWARE\Policies\Microsoft\office'){
   Remove-Item $k -Recurse -Force -EA SilentlyContinue
 }
 S 'HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting' 'Disabled' 0
+S 'HKLM:\SOFTWARE\Microsoft\SQMClient\Windows' 'CEIPEnable' 1
+D 'HKLM:\SOFTWARE\Microsoft\PolicyManager\default\WiFi\AllowWiFiHotSpotReporting' 'Value'
+D 'HKLM:\SOFTWARE\Microsoft\PolicyManager\default\WiFi\AllowAutoConnectToWiFiSenseHotspots' 'Value'
+foreach($v in 'VSCommon\16.0','VSCommon\17.0'){ D "HKLM:\SOFTWARE\Microsoft\$v\SQM" 'OptIn' }
+D 'HKLM:\SOFTWARE\NVIDIA Corporation\NvControlPanel2' 'OptInOrOutPreference'
+foreach($v in 'DOTNET_CLI_TELEMETRY_OPTOUT','POWERSHELL_TELEMETRY_OPTOUT'){
+  try{ [Environment]::SetEnvironmentVariable($v,$null,'Machine') }catch{}
+}
+
+Write-Host "== Sessoes de rastreamento ETW ==" -ForegroundColor Cyan
+foreach($al in 'AutoLogger-Diagtrack-Listener','SQMLogger','Diagtrack-Listener','WiFiSession',
+               'DiagLog','CloudExperienceHostOobe','Circular Kernel Context Logger'){
+  $k = "HKLM:\SYSTEM\CurrentControlSet\Control\WMI\Autologger\$al"
+  if(Test-Path $k){ S $k 'Start' 1; S $k 'Enabled' 1 }
+}
 
 Write-Host "== Defender ==" -ForegroundColor Cyan
 if(Get-Command Set-MpPreference -EA SilentlyContinue){
@@ -143,6 +169,13 @@ S 'HKCU:\Control Panel\Desktop' 'AutoEndTasks' '0' 'String'
 D 'HKCU:\Control Panel\Desktop' 'UserPreferencesMask'
 S 'HKCU:\System\GameConfigStore' 'GameDVR_Enabled' 1
 S 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\AdvertisingInfo' 'Enabled' 1
+S 'HKCU:\Software\Microsoft\InputPersonalization' 'RestrictImplicitTextCollection' 0
+S 'HKCU:\Software\Microsoft\InputPersonalization' 'RestrictImplicitInkCollection' 0
+S 'HKCU:\Software\Microsoft\InputPersonalization\TrainedDataStore' 'HarvestContacts' 1
+S 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy' 'TailoredExperiencesWithDiagnosticDataEnabled' 1
+S 'HKCU:\Software\Microsoft\MediaPlayer\Preferences' 'UsageTracking' 1
+S 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location' 'Value' 'Allow' 'String'
+D 'HKCU:\Software\Microsoft\Siuf\Rules' 'PeriodInNanoSeconds'
 $cdm='HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager'
 foreach($n in 'ContentDeliveryAllowed','SubscribedContentEnabled','SystemPaneSuggestionsEnabled',
               'RotatingLockScreenEnabled','SoftLandingEnabled'){ S $cdm $n 1 }

@@ -344,7 +344,73 @@ S 'HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting' 'Disabled' 1
 S 'HKLM:\SYSTEM\CurrentControlSet\Control\Remote Assistance' 'fAllowToGetHelp' 0
 S 'HKLM:\SOFTWARE\Policies\Microsoft\Edge' 'StartupBoostEnabled' 0
 S 'HKLM:\SOFTWARE\Policies\Microsoft\Edge' 'BackgroundModeEnabled' 0
+
+# --- CEIP / SQM ---
+S 'HKLM:\SOFTWARE\Policies\Microsoft\SQMClient\Windows' 'CEIPEnable' 0
+S 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\Messenger\Client' 'CEIP' 2
+S 'HKLM:\SOFTWARE\Microsoft\SQMClient\Windows' 'CEIPEnable' 0
+
+# --- relatorio de erros (WER) ---
+$wer='HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Error Reporting'
+S $wer 'Disabled' 1; S $wer 'DontSendAdditionalData' 1; S $wer 'AutoApproveOSDumps' 0
+S $wer 'LoggingDisabled' 1
+
+# --- linha do tempo / historico de atividades ---
+$sys='HKLM:\SOFTWARE\Policies\Microsoft\Windows\System'
+S $sys 'EnableActivityFeed' 0; S $sys 'PublishUserActivities' 0; S $sys 'UploadUserActivities' 0
+# so a area de transferencia entre dispositivos, que sobe para a nuvem.
+# O historico local (Win+V) continua funcionando.
+S $sys 'AllowCrossDeviceClipboard' 0
+
+# --- ID de publicidade ---
+S 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo' 'DisabledByGroupPolicy' 1
+
+# --- voz, escrita e personalizacao de entrada ---
+S 'HKLM:\SOFTWARE\Policies\Microsoft\InputPersonalization' 'AllowInputPersonalization' 0
+S 'HKLM:\SOFTWARE\Policies\Microsoft\Speech' 'AllowSpeechModelUpdate' 0
+S 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\HandwritingErrorReports' 'PreventHandwritingErrorReports' 1
+S 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\TabletPC' 'PreventHandwritingDataSharing' 1
+
+# --- busca na nuvem / Cortana ---
+$ws='HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search'
+S $ws 'AllowCortana' 0; S $ws 'AllowCloudSearch' 0; S $ws 'ConnectedSearchUseWeb' 0
+S $ws 'DisableWebSearch' 1; S $ws 'AllowSearchToUseLocation' 0
+
+# --- sincronizacao de configuracoes e WiFi Sense ---
+S 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\SettingSync' 'DisableSettingSync' 2
+S 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\SettingSync' 'DisableSettingSyncUserOverride' 1
+S 'HKLM:\SOFTWARE\Microsoft\PolicyManager\default\WiFi\AllowWiFiHotSpotReporting' 'Value' 0
+S 'HKLM:\SOFTWARE\Microsoft\PolicyManager\default\WiFi\AllowAutoConnectToWiFiSenseHotspots' 'Value' 0
+
+# --- telemetria do Edge ---
+$ed='HKLM:\SOFTWARE\Policies\Microsoft\Edge'
+S $ed 'MetricsReportingEnabled' 0; S $ed 'SendSiteInfoToImproveServices' 0
+S $ed 'PersonalizationReportingEnabled' 0; S $ed 'UserFeedbackAllowed' 0
+S $ed 'DiagnosticData' 0; S $ed 'SpotlightExperiencesAndRecommendationsEnabled' 0
+
+# --- telemetria de terceiros presentes numa maquina de desenvolvimento ---
+S 'HKLM:\SOFTWARE\Policies\Microsoft\office\common\clienttelemetry' 'sendtelemetry' 3
+S 'HKLM:\SOFTWARE\Policies\Microsoft\office\16.0\common' 'sendcustomerdata' 0
+S 'HKLM:\SOFTWARE\Policies\Microsoft\office\16.0\common\clienttelemetry' 'DisableTelemetry' 1
+S 'HKLM:\SOFTWARE\Microsoft\VSCommon\16.0\SQM' 'OptIn' 0
+S 'HKLM:\SOFTWARE\Microsoft\VSCommon\17.0\SQM' 'OptIn' 0
+S 'HKLM:\SOFTWARE\NVIDIA Corporation\NvControlPanel2' 'OptInOrOutPreference' 0
+foreach($v in 'DOTNET_CLI_TELEMETRY_OPTOUT','POWERSHELL_TELEMETRY_OPTOUT'){
+  try{ [Environment]::SetEnvironmentVariable($v,'1','Machine') }catch{}
+}
 L "  aplicado"
+
+# --- sessoes de rastreamento ETW (autologger) ---
+# Nao mexemos no arquivo hosts: bloquear dominios da Microsoft por ali quebra
+# Windows Update e Store, e volta a valer a cada atualizacao de recurso.
+L "`n--- Sessoes de rastreamento ETW ---"
+$okE=0
+foreach($al in 'AutoLogger-Diagtrack-Listener','SQMLogger','Diagtrack-Listener','WiFiSession',
+               'DiagLog','CloudExperienceHostOobe','Circular Kernel Context Logger'){
+  $k = "HKLM:\SYSTEM\CurrentControlSet\Control\WMI\Autologger\$al"
+  if(Test-Path $k){ S $k 'Start' 0; S $k 'Enabled' 0; $okE++; L "  OK      $al" }
+}
+L "  total: $okE"
 
 # =====================================================================
 # 7. PREFERENCIAS DO USUARIO (HKCU)
@@ -380,8 +446,18 @@ foreach($n in 'ContentDeliveryAllowed','FeatureManagementEnabled','OemPreInstall
  'SystemPaneSuggestionsEnabled','RotatingLockScreenEnabled','RotatingLockScreenOverlayEnabled'){ S $cdm $n 0 }
 S 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\AdvertisingInfo' 'Enabled' 0
 S 'HKCU:\Software\Microsoft\Siuf\Rules' 'NumberOfSIUFInPeriod' 0
+S 'HKCU:\Software\Microsoft\Siuf\Rules' 'PeriodInNanoSeconds' 0
 S 'HKCU:\Software\Microsoft\InputPersonalization' 'RestrictImplicitTextCollection' 1
 S 'HKCU:\Software\Microsoft\InputPersonalization' 'RestrictImplicitInkCollection' 1
+S 'HKCU:\Software\Microsoft\InputPersonalization\TrainedDataStore' 'HarvestContacts' 0
+S 'HKCU:\Software\Microsoft\Personalization\Settings' 'AcceptedPrivacyPolicy' 0
+# "experiencias personalizadas com dados de diagnostico"
+S 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy' 'TailoredExperiencesWithDiagnosticDataEnabled' 0
+# reconhecimento de voz online
+S 'HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy' 'HasAccepted' 0
+S 'HKCU:\Software\Microsoft\MediaPlayer\Preferences' 'UsageTracking' 0
+# acesso de apps a localizacao (o servico lfsvc ja foi desabilitado acima)
+S ('HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location') 'Value' 'Deny' 'String'
 S 'HKCU:\System\GameConfigStore' 'GameDVR_Enabled' 0
 S 'HKCU:\System\GameConfigStore' 'GameDVR_FSEBehaviorMode' 2
 S 'HKCU:\Software\Microsoft\GameBar' 'AutoGameModeEnabled' 0
