@@ -31,9 +31,24 @@ function D($p,$n){ Remove-ItemProperty -Path $p -Name $n -Force -EA SilentlyCont
 
 Write-Host "== Servicos ==" -ForegroundColor Cyan
 $auto = 'DiagTrack','SysMain','WSearch','Spooler','DoSvc','DusmSvc','DPS','TrkWks','PcaSvc',
-        'LanmanServer','CDPSvc','WavesSysSvc','igfxCUIService2.0.0.0','edgeupdate',
+        'LanmanServer','CDPSvc','edgeupdate',
         'wuauserv','UsoSvc','BITS','WerSvc'
 foreach($s in $auto){ try{ Set-Service $s -StartupType Automatic -EA Stop }catch{} }
+
+# Bloatware de fabricante: espelha a lista do Otimizar-Windows.ps1. Os que nao
+# existirem nesta maquina falham em silencio no catch.
+$oem = 'igfxCUIService2.0.0.0','WavesSysSvc','RtkAudioUniversalService','RtkAudioService',
+       'NvTelemetryContainer',
+       'DellClientManagementService','SupportAssistAgent','SupportAssistAppService',
+       'DellDataVault','DDVDataCollector','DDVRulesProcessor','DDVCollectorSvcApi',
+       'DellTechHub','DellCustomerConnect',
+       'HPSupportSolutionsFrameworkService','HPTouchpointAnalyticsService','hpqwmiex',
+       'HPAppHelperCap','HPDiagsCap','HPNetworkCap','HPSysInfoCap','HPPrintScanDoctorService',
+       'LenovoVantageService','ImControllerService',
+       'ASUSSoftwareManager','ASUSSystemAnalysis','ASUSSystemDiagnosis','ASUSLinkNear',
+       'ASUSLinkRemote','ASUSSwitch',
+       'GoogleChromeElevationService','AdobeARMservice','AdobeUpdateService','MozillaMaintenance'
+foreach($s in $oem){ try{ Set-Service $s -StartupType Automatic -EA Stop }catch{} }
 
 $manual = 'dmwappushservice','WdiServiceHost','WdiSystemHost','PrintNotify','SSDPSRV','upnphost',
           'lmhosts','RemoteRegistry','SharedAccess','AJRouter','ALG','TapiSrv','icssvc','NcaSvc',

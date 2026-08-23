@@ -103,11 +103,31 @@ $off = @(
  'workfolderssvc','autotimesvc','CDPSvc',
  # sensores de brilho adaptativo (mantem SensorService p/ rotacao de tela)
  'SensrSvc','DisplayEnhancementService',
- # bloatware de fabricante
- 'igfxCUIService2.0.0.0','WavesSysSvc','RtkAudioUniversalService','DellClientManagementService',
+ # --- bloatware de fabricante -------------------------------------------------
+ # Servicos que nao existirem na maquina sao ignorados pelo laco abaixo, entao a
+ # lista cobre varios fabricantes sem risco para quem tem so um deles.
+ # NAO entram aqui, de proposito: gestao termica (esifsvc / DPTF / Dell Power
+ # Manager), pilhas Bluetooth (RtkBtManServ), drivers de audio e servicos de
+ # teclas de funcao -- desabilitar qualquer um deles quebra hardware basico.
+ # efeitos de audio e utilitarios de video
+ 'igfxCUIService2.0.0.0','WavesSysSvc','RtkAudioUniversalService','RtkAudioService',
+ 'NvTelemetryContainer',
+ # Dell
+ 'DellClientManagementService','SupportAssistAgent','SupportAssistAppService',
+ 'DellDataVault','DDVDataCollector','DDVRulesProcessor','DDVCollectorSvcApi',
+ 'DellTechHub','DellCustomerConnect',
+ # HP
+ 'HPSupportSolutionsFrameworkService','HPTouchpointAnalyticsService','hpqwmiex',
+ 'HPAppHelperCap','HPDiagsCap','HPNetworkCap','HPSysInfoCap','HPPrintScanDoctorService',
+ # Lenovo (ImControllerService tambem cuida do Lenovo System Update)
+ 'LenovoVantageService','ImControllerService',
+ # Asus
+ 'ASUSSoftwareManager','ASUSSystemAnalysis','ASUSSystemDiagnosis','ASUSLinkNear',
+ 'ASUSLinkRemote','ASUSSwitch',
  # updaters de terceiros
  'edgeupdate','edgeupdatem','MicrosoftEdgeElevationService','gupdate','gupdatem',
- 'VSInstallerElevationService','brave','BraveElevationService'
+ 'GoogleChromeElevationService','VSInstallerElevationService','brave','BraveElevationService',
+ 'AdobeARMservice','AdobeUpdateService','MozillaMaintenance'
 )
 if($busy){ $off = $off | Where-Object { $_ -ne 'VSInstallerElevationService' } }
 
@@ -239,9 +259,12 @@ reg export "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" (Join-Path $Base
 reg export "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" (Join-Path $Base 'backup-Run-HKCU.reg') /y 2>&1 | Out-Null
 
 # Padroes de autostart dispensavel (efeitos de audio, updaters, assistentes de fabricante)
-$lixo = 'RtkNGui|RtI2SBgProc|WavesSvc|RtHDVCpl|Realtek|SecurityHealth|Logi.*Download|LogiLDA|' +
+$lixo = 'RtkNGui|RtI2SBgProc|WavesSvc|RtHDVCpl|Realtek|Nahimic|SecurityHealth|Logi.*Download|LogiLDA|' +
         'EdgeAutoLaunch|OneDrive|Skype|Spotify|Steam|EpicGames|Discord|Adobe|Acrobat|iTunes|' +
-        'CCleaner|Dropbox|Teams|GoogleDriveFS|QuickTime|Java|jusched|Dell.*Update|SupportAssist'
+        'CCleaner|Dropbox|Teams|GoogleDriveFS|QuickTime|Java|jusched|NvBackend|' +
+        # assistentes e updaters de fabricante
+        'Dell.*Update|SupportAssist|HP.*Update|HPSupport|Lenovo.*Update|Vantage|' +
+        'ASUS.*Update|ArmouryCrate|Acer.*Update|MSI.*Update'
 foreach($k in $runHKLM,$runHKCU){
   if(Test-Path $k){
     (Get-ItemProperty $k).PSObject.Properties | Where-Object { $_.Name -notlike 'PS*' } | ForEach-Object {

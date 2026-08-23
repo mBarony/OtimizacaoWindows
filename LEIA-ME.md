@@ -46,9 +46,9 @@ de arquivos compactados, de rede e de mídia removível.
 
 | Área | Ação |
 |---|---|
-| **Serviços** | Desabilita ~60: telemetria, SysMain, indexação, spooler, Xbox, UPnP, diagnóstico, bloatware de fabricante, updaters de terceiros. Windows Update vai para *Manual* (sob demanda). |
+| **Serviços** | Desabilita ~90: telemetria, SysMain, indexação, spooler, Xbox, UPnP, diagnóstico, bloatware de fabricante (Dell, HP, Lenovo, Asus), updaters de terceiros. Windows Update vai para *Manual* (sob demanda). |
 | **Tarefas agendadas** | Desabilita ~70: Compatibility Appraiser, CEIP, Feedback, WER, Flighting, diagnóstico, manutenção, varreduras do Defender. |
-| **Autostart** | Remove entradas em HKLM/HKCU por padrão (efeitos de áudio Realtek/Waves, updaters, OneDrive, Edge auto-launch, etc). Faz backup `.reg` antes. |
+| **Autostart** | Remove entradas em HKLM/HKCU por padrão (efeitos de áudio, assistentes e updaters de fabricante, OneDrive, Edge auto-launch, etc). Faz backup `.reg` antes. |
 | **Memória** | Prefetch/SuperFetch off, prioridade para o processo em foco, *power throttling* off, pagefile fixo dimensionado pela RAM. |
 | **Indexação** | Windows Search desligado, índice apagado, atributo de indexação removido do volume. |
 | **Telemetria** | Diagnósticos no mínimo, sem Copilot, sem widgets, sem sugestões nem anúncios. |
